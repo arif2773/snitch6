@@ -1,0 +1,121 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Timed Quiz</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 700px; margin: 40px auto; line-height: 1.6; }
+    .question { display: none; }
+    .question.active { display: block; }
+    #result { display: none; margin-top: 20px; }
+    .timer { font-weight: bold; color: darkred; }
+    .btn { margin-top: 10px; }
+    input[type="text"] { width: 100%; padding: 8px; margin-top: 5px; }
+  </style>
+</head>
+<body>
+  <h1>Harry Potter Riddle Quiz</h1>
+  <div id="quiz"></div>
+  <div id="result">
+    <h2>Quiz Complete!</h2>
+    <div id="summary"></div>
+  </div>
+
+  <script>
+    const questions = [
+      {
+        text: "I am the brother in the shadow, My hands better at tending than at teaching. I keep to myself, Yet I’ve seen more than anyone knows. Who am I?",
+        type: "text",
+      },
+      {
+        text: "I loved boldly, laughed loudly, And fought in the end without fear. My heart was once tangled with a lion, But my fate was sealed by a wolf. Who am I?",
+        type: "text",
+      },
+      {
+        text: "I see through walls, Through lies, Through time itself—But I could not see my own end. Who am I?",
+        type: "text",
+      },
+      {
+        text: "From the data above, determine the diameter of the Snitch in centimetres.",
+        type: "text",
+      }
+    ];
+
+    let current = 0;
+    let startTime = 0;
+    const answers = [];
+
+    function renderQuestion(index) {
+      const quiz = document.getElementById("quiz");
+      quiz.innerHTML = "";
+
+      const q = questions[index];
+      const div = document.createElement("div");
+      div.className = "question active";
+      const h2 = document.createElement("h2");
+      h2.textContent = `Question ${index + 1}`;
+      const p = document.createElement("p");
+      p.textContent = q.text;
+
+      const input = document.createElement("input");
+      input.type = "text";
+      input.placeholder = "Your answer here";
+
+      const timer = document.createElement("div");
+      timer.className = "timer";
+      timer.id = "timer";
+      timer.textContent = "Time: 0s";
+
+      const btn = document.createElement("button");
+      btn.textContent = index === questions.length - 1 ? "Finish" : "Next";
+      btn.className = "btn";
+      btn.onclick = () => {
+        const endTime = Date.now();
+        const timeTaken = ((endTime - startTime) / 1000).toFixed(2);
+        answers.push({
+          question: q.text,
+          answer: input.value,
+          time: timeTaken
+        });
+        current++;
+        if (current < questions.length) {
+          renderQuestion(current);
+        } else {
+          showResult();
+        }
+      };
+
+      div.appendChild(h2);
+      div.appendChild(p);
+      div.appendChild(input);
+      div.appendChild(timer);
+      div.appendChild(btn);
+      quiz.appendChild(div);
+
+      startTime = Date.now();
+      let seconds = 0;
+      const interval = setInterval(() => {
+        seconds++;
+        timer.textContent = `Time: ${seconds}s`;
+        if (current !== index) clearInterval(interval);
+      }, 1000);
+    }
+
+    function showResult() {
+      document.getElementById("quiz").style.display = "none";
+      const resultDiv = document.getElementById("result");
+      const summary = document.getElementById("summary");
+      resultDiv.style.display = "block";
+
+      answers.forEach((ans, i) => {
+        const block = document.createElement("div");
+        block.innerHTML = `<h4>Question ${i + 1}</h4><p><strong>Answer:</strong> ${ans.answer}</p><p><strong>Time Taken:</strong> ${ans.time} seconds</p>`;
+        summary.appendChild(block);
+      });
+    }
+
+    renderQuestion(current);
+  </script>
+</body>
+</html>
